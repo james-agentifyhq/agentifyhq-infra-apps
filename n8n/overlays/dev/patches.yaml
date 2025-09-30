@@ -1,0 +1,81 @@
+# Patch for n8n deployment - dev environment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  # Single replica for dev
+  replicas: 1
+
+  template:
+    spec:
+      containers:
+      - name: n8n
+        # Lower resource requirements for dev
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Patch for PostgreSQL StatefulSet - dev environment
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: n8n
+spec:
+  template:
+    spec:
+      containers:
+      - name: postgres
+        # Lower resource requirements for dev
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+  # Smaller volume for dev
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      resources:
+        requests:
+          storage: 5Gi
+
+---
+# Patch for n8n PVC - dev environment
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-data
+  namespace: n8n
+spec:
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# Patch for IngressRoute - dev environment
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  routes:
+  - match: Host(`n8n-dev.example.com`)
+    kind: Rule
+    services:
+    - name: n8n
+      port: 80
+    middlewares:
+    - name: security-headers

@@ -1,0 +1,62 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infrastructure-apps
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: infrastructure-apps
+    app.kubernetes.io/component: application-of-applications
+  # Finalizers ensure that Application resources are properly cleaned up
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  # Project this application belongs to
+  project: default
+
+  # Source repository configuration
+  source:
+    # Git repository URL
+    repoURL: https://github.com/yourorg/infrastructure-apps.git
+    # Target revision (branch, tag, or commit)
+    targetRevision: main
+    # Path to the ArgoCD applications directory
+    path: argocd-apps
+
+  # Destination cluster and namespace
+  destination:
+    # Cluster URL (in-cluster)
+    server: https://kubernetes.default.svc
+    # Namespace where child applications will be created
+    namespace: argocd
+
+  # Sync policy
+  syncPolicy:
+    # Automated sync configuration
+    automated:
+      # Automatically sync when Git changes
+      prune: true
+      # Automatically sync when cluster state changes
+      selfHeal: true
+      # Allow empty directories
+      allowEmpty: false
+
+    # Sync options
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+
+    # Retry configuration
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Ignore differences for certain fields
+  ignoreDifferences:
+  - group: argoproj.io
+    kind: Application
+    jsonPointers:
+    - /status
