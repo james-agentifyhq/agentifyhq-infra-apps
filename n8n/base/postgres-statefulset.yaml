@@ -51,6 +51,31 @@ spec:
         env:
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        - name: POSTGRES_NON_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_NON_ROOT_USER
+        - name: POSTGRES_NON_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_NON_ROOT_PASSWORD
 
         # Resource limits and requests
         resources:
@@ -110,6 +135,9 @@ spec:
           mountPath: /tmp
         - name: run
           mountPath: /var/run/postgresql
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d/init-n8n-user.sh
+          subPath: init-n8n-user.sh
 
       # Additional volumes for security
       volumes:
@@ -117,6 +145,10 @@ spec:
         emptyDir: {}
       - name: run
         emptyDir: {}
+      - name: init-script
+        configMap:
+          name: postgres-init-script
+          defaultMode: 0755
 
   # Persistent volume claim template
   volumeClaimTemplates:

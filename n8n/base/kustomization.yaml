@@ -14,6 +14,8 @@ labels:
 resources:
   - namespace.yaml
   - sealed-secret.yaml
+  - postgres-sealed-secret.yaml
+  - postgres-configmap.yaml
   - postgres-statefulset.yaml
   - postgres-service.yaml
   - deployment.yaml
