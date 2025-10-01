@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://community-charts.github.io/helm-charts
     chart: n8n
-    targetRevision: "*"
+    targetRevision: "1.15.11"
     helm:
       values: |
         postgresql:
@@ -16,16 +16,11 @@ spec:
           postgresqlDatabase: n8n_db
           postgresqlUsername: n8n_user
           postgresqlPassword: n8nProdPass123!
-        main:
-          secret:
-            n8n:
-              encryption_key: "44a9f25eb9a35de9da53e32d9dede673"
-          config:
-            db:
-              type: postgresdb
-          service:
-            type: LoadBalancer
-            port: 80
+          image:
+            tag: "15"
+        service:
+          type: LoadBalancer
+          port: 80
   destination:
     server: https://kubernetes.default.svc
     namespace: n8n-stack
