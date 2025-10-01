@@ -19,6 +19,7 @@ nameSuffix: -dev
 # Patches for dev environment
 patches:
 - path: patches.yaml
+- path: single-node-fixes.yaml
 
 # ConfigMap generator for environment-specific config
 configMapGenerator:

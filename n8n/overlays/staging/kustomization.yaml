@@ -19,6 +19,7 @@ nameSuffix: -staging
 # Patches for staging environment
 patches:
 - path: patches.yaml
+- path: single-node-fixes.yaml
 
 # ConfigMap generator for environment-specific config
 configMapGenerator:
