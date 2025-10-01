@@ -41,10 +41,10 @@ spec:
 
       # Init containers
       initContainers:
-      # Set correct permissions on the data volume
+      # Verify data volume is writable (security-compliant check)
       - name: volume-permissions
         image: busybox:1.36
-        command: ["sh", "-c", "touch /data/.n8n-test && rm /data/.n8n-test || true"]
+        command: ["sh", "-c", "touch /data/.access_test && rm /data/.access_test"]
         volumeMounts:
         - name: n8n-data
           mountPath: /data
