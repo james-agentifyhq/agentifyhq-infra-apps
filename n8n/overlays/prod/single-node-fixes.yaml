@@ -87,7 +87,7 @@ spec:
         - name: DB_POSTGRESDB_PORT
           value: "5432"
       
-      # Override affinity to use soft anti-affinity instead of hard requirement
+      # Override affinity for single-node cluster
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -98,15 +98,4 @@ spec:
                 operator: In
                 values:
                 - production
-        # Use soft (preferred) instead of hard (required) anti-affinity
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app.kubernetes.io/name
-                  operator: In
-                  values:
-                  - n8n
-              topologyKey: kubernetes.io/hostname
+        # Remove pod anti-affinity for single-node cluster
