@@ -19,7 +19,7 @@ spec:
   # Source repository configuration
   source:
     # Git repository URL
-    repoURL: https://github.com/yourorg/infrastructure-apps.git
+    repoURL: https://github.com/james-agentifyhq/agentifyhq-infra-apps.git
     # Target revision (branch, tag, or commit)
     targetRevision: main
     # Path to the dev overlay
