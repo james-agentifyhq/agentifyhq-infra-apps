@@ -1,7 +1,7 @@
 # Single-node cluster fixes for n8n production
 # These patches fix issues for running production overlay on single-node K3s
 
-# Fix 1: Change postgres hostname from "postgres" to "postgres-prod"
+# Fix 1: Correct postgres hostname - StatefulSet name becomes "postgres-prod" but service name remains "postgres"
 # Fix 2: Remove hard anti-affinity requirement
 apiVersion: apps/v1
 kind: Deployment
@@ -11,7 +11,12 @@ metadata:
 spec:
   # Reduce to 1 replica for single node
   replicas: 1
-  
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: n8n
+      app.kubernetes.io/component: workflow-automation
+
   template:
     spec:
       # Fix PostgreSQL hostname in init container
@@ -22,12 +27,33 @@ spec:
         - sh
         - -c
         - |
-          echo "Waiting for PostgreSQL to be ready..."
-          until nc -z postgres-prod 5432; do
-            echo "PostgreSQL is unavailable - sleeping"
-            sleep 2
+          echo "=== PostgreSQL Connection Debug ==="
+          echo "Target host: postgres (StatefulSet service name)"
+          echo "Target port: 5432"
+          echo "Note: StatefulSet name is 'postgres-prod' but service name remains 'postgres'"
+          echo "Timestamp: $(date)"
+
+          for i in $(seq 1 30); do
+            echo "Attempt $i/30: Testing connection to postgres:5432"
+            if nc -z postgres 5432; then
+              echo "✓ PostgreSQL is ready on postgres:5432"
+              break
+            else
+              echo "✗ PostgreSQL not ready, waiting..."
+              sleep 2
+            fi
           done
-          echo "PostgreSQL is up - continuing"
+
+          if ! nc -z postgres 5432; then
+            echo "ERROR: PostgreSQL not accessible after 30 attempts"
+            echo "Checking if postgres-prod service exists..."
+            nslookup postgres-prod || echo "postgres-prod DNS lookup failed"
+            echo "Checking if postgres service exists..."
+            nslookup postgres || echo "postgres DNS lookup failed"
+            exit 1
+          fi
+
+          echo "✓ PostgreSQL connection verified"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -39,10 +65,10 @@ spec:
       
       containers:
       - name: n8n
-        # Fix PostgreSQL hostname in environment
+        # Fix PostgreSQL hostname in environment - use service name, not StatefulSet name
         env:
         - name: DB_POSTGRESDB_HOST
-          value: "postgres-prod"
+          value: "postgres"
         - name: DB_POSTGRESDB_PORT
           value: "5432"
       

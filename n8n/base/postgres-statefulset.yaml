@@ -51,6 +51,11 @@ spec:
         env:
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
+        # Enhanced logging for debugging
+        - name: POSTGRES_LOG_STATEMENT
+          value: "all"
+        - name: POSTGRES_LOG_MIN_DURATION_STATEMENT
+          value: "0"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -138,6 +143,9 @@ spec:
         - name: init-script
           mountPath: /docker-entrypoint-initdb.d/init-n8n-user.sh
           subPath: init-n8n-user.sh
+        - name: init-script-bin
+          mountPath: /docker-entrypoint-initdb.d/init-n8n-user-wrapper.sh
+          subPath: init-n8n-user-wrapper.sh
 
       # Additional volumes for security
       volumes:
@@ -149,6 +157,13 @@ spec:
         configMap:
           name: postgres-init-script
           defaultMode: 0755
+      - name: init-script-bin
+        configMap:
+          name: postgres-init-script-wrapper
+          defaultMode: 0755
+      # Add volume for init script execution as postgres user
+      - name: init-script-bin
+        emptyDir: {}
 
   # Persistent volume claim template
   volumeClaimTemplates:
