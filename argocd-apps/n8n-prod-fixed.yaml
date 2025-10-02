@@ -26,7 +26,7 @@ spec:
             db:
               postgresdb:
                 password: n8nProdPass123!
-          env:
+          extraEnv:
             - name: N8N_SECURE_COOKIE
               value: "false"
           service:
