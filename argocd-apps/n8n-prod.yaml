@@ -12,23 +12,21 @@ spec:
     helm:
       values: |
         postgresql:
+          # This 'postgresql' block enables and configures the *bundled* PostgreSQL sub-chart.
           enabled: true
+          
+          # Database credentials for n8n application
           postgresqlDatabase: n8n_db
           postgresqlUsername: n8n_user
           postgresqlPassword: n8nProdPass123!
+          
+          # This block overrides the image for the main PostgreSQL container.
           image:
+            # We explicitly override the entire image path to use a known, stable tag 
+            # and potentially the Bitnami Legacy repository, which has older tags.
             registry: docker.io
-            repository: bitnamilegacy/postgresql
-            tag: "15-debian-12"
-
-        volumePermissions:
-          image:
-            repository: bitnamilegacy/bitnami-shell
-
-        metrics:
-          enabled: true 
-          image:
-            repository: bitnamilegacy/postgres-exporter
+            repository: bitnamilegacy/postgresql # <--- Critical: Use 'bitnamilegacy'
+            tag: "15-debian-12"                   # <--- Using a PostgreSQL 15 image 
 
         service:
           type: LoadBalancer
