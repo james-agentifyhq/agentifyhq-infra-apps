@@ -19,7 +19,7 @@ spec:
             db:
               type: postgresdb
               postgresdb:
-                host: n8n-postgresql
+                host: n8n-postgresql-prod
                 database: n8n_db
                 user: n8n_user
           secret:
