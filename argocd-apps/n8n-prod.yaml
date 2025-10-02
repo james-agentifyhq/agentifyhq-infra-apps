@@ -6,31 +6,29 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://community-charts.github.io/helm-charts
+    repoURL: https://8gears.github.io/n8n-helm-chart/
     chart: n8n
-    targetRevision: "1.15.11"
+    targetRevision: "1.0.15"
     helm:
       values: |
-        postgresql:
-          # This 'postgresql' block enables and configures the *bundled* PostgreSQL sub-chart.
-          enabled: true
-          
-          # Database credentials for n8n application
-          postgresqlDatabase: n8n_db
-          postgresqlUsername: n8n_user
-          postgresqlPassword: n8nProdPass123!
-          
-          # This block overrides the image for the main PostgreSQL container.
-          image:
-            # We explicitly override the entire image path to use a known, stable tag 
-            # and potentially the Bitnami Legacy repository, which has older tags.
-            registry: docker.io
-            repository: bitnamilegacy/postgresql # <--- Critical: Use 'bitnamilegacy'
-            tag: "15-debian-12"                   # <--- Using a PostgreSQL 15 image 
+        ingress:
+          enabled: false
 
-        service:
-          type: LoadBalancer
-          port: 80
+        main:
+          config:
+            db:
+              type: postgresdb
+              postgresdb:
+                host: n8n-postgresql
+                database: n8n_db
+                user: n8n_user
+          secret:
+            db:
+              postgresdb:
+                password: n8nProdPass123!
+          service:
+            type: LoadBalancer
+            port: 80
   destination:
     server: https://kubernetes.default.svc
     namespace: n8n-stack

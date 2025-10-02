@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-postgresql-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: postgresql
+    targetRevision: "15.4.0"
+    helm:
+      values: |
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/postgresql
+          tag: "15-debian-12"
+        auth:
+          database: n8n_db
+          username: n8n_user
+          password: n8nProdPass123!
+        service:
+          type: ClusterIP
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: n8n-stack
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
