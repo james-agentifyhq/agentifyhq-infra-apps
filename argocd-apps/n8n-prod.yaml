@@ -18,8 +18,18 @@ spec:
           postgresqlPassword: n8nProdPass123!
           image:
             registry: docker.io
-            repository: bitnami/postgresql
+            repository: bitnamilegacy/postgresql
             tag: "15-debian-12"
+
+        volumePermissions:
+          image:
+            repository: bitnamilegacy/bitnami-shell
+
+        metrics:
+          enabled: true 
+          image:
+            repository: bitnamilegacy/postgres-exporter
+
         service:
           type: LoadBalancer
           port: 80
